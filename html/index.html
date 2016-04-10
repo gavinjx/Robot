@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<!-- Author: [Gavin](https://guojianxiang.com) -->
+<html>
+<head>
+<title>小R-Beta 0.1</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.mobile.flatui.css" />
+</head>
+<body>
+	<div data-role="page">
+		<div data-role="header" class="header linear-g">
+			<a href="#panel-left" data-iconpos="notext"
+				class="glyphicon glyphicon-th-large col-xs-2 text-right"> </a> <a
+				class="text-center col-xs-8">小R</a> <a href="#panel-right"
+				data-iconpos="notext"
+				class="glyphicon glyphicon-user col-xs-2 text-left"> </a>
+		</div>
+		<div data-role="content" class="container" role="main">
+			<ul class="content-reply-box mg10">
+				<li class="even"><a class="user" href="#"><img
+						class="img-responsive avatar_" width='44px' height='41px' src="images/avatar-1.png?v=2" alt=""><span
+						class="user-name">小R</span></a>
+					<div class="reply-content-box">
+						<div class="reply-content pr">
+							<span class="arrow">&nbsp;</span>
+							主人你好~
+						</div>
+					</div></li>
+				
+				
+			</ul>
+			<form>
+			<div class="form-group">
+			    <input type="text" class="form-control" id="clientReply" placeholder="说点啥？">
+			</div>
+			<ul class="operating row text-center linear-g reply" style="margin-right:3px;margin-left:3px;">
+				<li class="col-xs-0"><a href="javascript:void(0);"><span
+						class="glyphicon glyphicon-comment"></span> &nbsp;回复</a></li>
+			</ul>
+        
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery.mobile-1.4.0-rc.1.js"></script>
+
+	<script type="text/javascript">
+		function getTime()
+		{
+			var myDate = new Date() ;
+			var month = myDate.getMonth() ;
+			if(month<10){
+				month = '0'+month ;
+			}
+			var day = myDate.getDate() ;
+			if(day<10){
+				day = '0'+day ;
+			}
+			var hour = myDate.getHours() ;
+			if(hour<10){
+				hour = '0'+hour ;
+			}
+			var minute = myDate.getMinutes() ;
+			if(minute<10){
+				minute = '0'+minute ;
+			}
+			var second = myDate.getSeconds() ;
+			if(second<10){
+				second = '0'+second ;
+			}
+			return month+'-'+day+' '+hour+':'+minute+':'+second ;
+		}
+		//验证浏览器是否支持WebSocket协议
+		if (!window.WebSocket) {
+			alert("您的浏览器不支持WebSocket!");
+		}
+			
+			var ws = new WebSocket("ws://robot.guojianxiang.com/chat");
+			ws.onopen = function(){
+			    console.log("握手成功");
+			    /* ws.send("客官来了..."); */
+			};
+			ws.onclose = function(event) {
+					//WebSocket Status:: Socket Closed
+					alert("链接即将断开，页面重新载入中...");
+					document.location.reload() ;
+			};
+			ws.onmessage = function(e){
+			    console.log("message:" + e.data);
+			    
+            	var appendMsg =  
+            		"<li class=\"even\">"+
+                	"<a class=\"user\" href=\"#\"><img class=\"img-responsive avatar_\" width=\"44px\" height=\"41px\" src=\"images/avatar-1.png?v=2\" alt=\"\">"+
+                	"<span class=\"user-name\">小R</span></a>"+
+                	"<div class=\"reply-content-box\">"+
+                	"<span class=\"reply-time\">"+getTime()+"</span>"+
+                    "<div class=\"reply-content pr\">"+
+                    	"<span class=\"arrow\">&nbsp;</span>"+
+                    	e.data
+                    	+
+                    "</div>"+
+                	"</div>"+
+            		"</li>" ;
+			    $('.content-reply-box ').append(appendMsg) ;
+			    $('#clientReply').focus() ;
+
+
+
+			    $("html,body").animate({scrollTop:$("#clientReply").offset().top},1000)
+			};
+			ws.onerror = function(){
+			    console.log("error");
+			};
+	</script>
+	
+
+	<script type="text/javascript">
+	
+	function send(){
+		if(ws!==undefined){
+			var userMsg =$.trim($('#clientReply').val()) ;
+			if(userMsg.length>0){
+				var appendMsg = "<li class=\"odd\">"+
+	            "<a class=\"user\" href=\"#\"><img class=\"img-responsive avatar_\"  width=\"44px\" height=\"41px\" src=\"images/avatar-1.png\" alt=\"\">"+
+	            "<span class=\"user-name\">主人</span></a>"+
+				"<div class=\"reply-content-box\">"+
+	            	"<span class=\"reply-time\">"+getTime()+"</span>"+
+	                "<div class=\"reply-content pr\">"+
+	                	"<span class=\"arrow\">&nbsp;</span>"+
+	                	userMsg
+	                	+
+	                "</div>"+
+	            "</div>"+
+	        	"</li>"
+	        	$('.content-reply-box ').append(appendMsg) ;
+				$('#clientReply').val('') ;
+				ws.send(userMsg);	
+			}else{
+				return false;
+			}
+			
+		}
+		
+	}
+	
+	
+	var $inp = $('input'); 
+	$inp.keypress(function (e) {
+		var key = e.which; 
+		if (key == 13) { 
+			send() ; 
+			return false ;
+		} 
+	}); 
+	
+	$('.reply').click(send) ;
+	$(function(){
+		$('.list-group-item,.menu a').click(function(){
+			$.mobile.changePage($(this).attr('href'), {
+				transition : 'flip', 
+				reverse : true       
+			});	
+		});
+	});
+</script>
+
+</body>
+</html>
